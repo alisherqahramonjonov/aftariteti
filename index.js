@@ -5,12 +5,27 @@ const PptxGenJS = require('pptxgenjs');
 const fs = require('fs');
 const Groq = require('groq-sdk');
 const express = require('express');
+const axios = require('axios');
 const app = express();
+
+// 🖼️ Rasm yuklash funksiyasi
+async function fetchImageBase64(prompt) {
+  try {
+    const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=600&nologo=true`;
+    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
+    const base64 = Buffer.from(response.data, 'binary').toString('base64');
+    return `image/jpeg;base64,${base64}`;
+  } catch(e) {
+    console.error("Rasm tortishda xatolik:", e.message);
+    return null;
+  }
+}
 
 // 🔐 ENV orqali yuklash
 const token = process.env.BOT_TOKEN;
 const groqApiKey = process.env.GROQ_API_KEY;
 const CHANNEL_ID = process.env.CHANNEL_ID || '@salomlarkk';
+const ADMIN_ID = parseInt(process.env.ADMIN_ID) || 7561580911;
 
 if (!token || !groqApiKey) {
   console.error("Xatolik: BOT_TOKEN yoki GROQ_API_KEY .env faylida ko'rsatilmagan!");
@@ -23,11 +38,13 @@ const groq = new Groq({ apiKey: groqApiKey });
 // ✅ Obuna tekshiruvi
 async function checkSub(userId) {
   try {
+    // Handle both @channel and -100xxx ID formats
     const chatMember = await bot.getChatMember(CHANNEL_ID, userId);
     const statuses = ['member', 'administrator', 'creator'];
     return statuses.includes(chatMember.status);
   } catch (error) {
     if (error.response && error.response.statusCode === 400) {
+      console.warn(`User ${userId} might not be in the chat correctly.`);
       return false;
     }
     console.error(`Obuna tekshirishda xatolik (${CHANNEL_ID}):`, error.message);
@@ -54,7 +71,10 @@ function saveUsers() {
 const THEMES = {
   dark_blue: { bg: '061121', secondary: '00CCFF', accent: '2D68FF', text: 'FFFFFF', subtext: 'EEEEEE' },
   emerald: { bg: '012622', secondary: '00FF99', accent: '00A86B', text: 'FFFFFF', subtext: 'D1FAE5' },
-  purple: { bg: '1A0B2E', secondary: 'BF40BF', accent: '702963', text: 'FFFFFF', subtext: 'E6E6FA' }
+  purple: { bg: '1A0B2E', secondary: 'BF40BF', accent: '702963', text: 'FFFFFF', subtext: 'E6E6FA' },
+  gold: { bg: '1A1A1A', secondary: 'D4AF37', accent: 'C5A028', text: 'FFFFFF', subtext: 'F5F5F5' },
+  cyberpunk: { bg: '0D0D0D', secondary: 'FF00FF', accent: '00FFFF', text: 'FFFFFF', subtext: 'E0E0E0' },
+  ocean: { bg: '003366', secondary: '00CCFF', accent: '007BFF', text: 'FFFFFF', subtext: 'E0FFFF' }
 };
 
 // 🤖 Groq orqali slaydlar yaratish (Ko'p tilli qo'llab-quvvatlash)
@@ -78,12 +98,12 @@ Rules:
 
   try {
     const res = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-70b-versatile",
       messages: [
-        { role: "system", content: "You are a professional presentation expert. Automatically detect the user's input language and respond in the same language. Your content must be rich, unique, and well-formatted." },
+        { role: "system", content: "You are a professional presentation expert. Automatically detect the user's input language and respond in the same language. Use high-quality professional vocabulary. Your content must be rich, unique, and well-formatted." },
         { role: "user", content: prompt }
       ],
-      temperature: 0.8, // Increased for more diversity
+      temperature: 0.7,
     });
 
     const aiText = res.choices[0].message.content;
@@ -118,41 +138,76 @@ async function createPPT(text, filePath, topic, userObj) {
   // 1. MUQOVA SLAYDI (Cover)
   const coverSlide = pptx.addSlide();
   coverSlide.background = { color: theme.bg };
-
-  // Foydalanuvchi Ismi (Badge)
-  coverSlide.addShape(pptx.ShapeType.roundRect, {
-    x: 0.5, y: 0.8, w: 3.5, h: 0.6, fill: { color: theme.secondary }, rectRadius: 0.3
-  });
-  coverSlide.addText(fullName.toUpperCase(), {
-    x: 0.5, y: 0.8, w: 3.5, h: 0.6, fontSize: 16, bold: true, color: '000000', align: 'center'
-  });
-
-  // Katta Sarlavha
-  coverSlide.addText(topic.toUpperCase(), {
-    x: 0.5, y: 2.2, w: '90%', h: 2.5,
-    fontSize: 42, bold: true, color: theme.text, align: 'left', fontFace: 'Arial Black',
-    valign: 'top'
-  });
-
-  // Mavzu osti (Subtitle)
   const coverSubtitle = slidesData[0]?.split('|')[1]?.trim() || "Mavzu yuzasidan batafsil ma'lumot";
-  coverSlide.addText(coverSubtitle, {
-    x: 0.5, y: 4.5, w: '80%', fontSize: 20, color: theme.secondary, italic: true
-  });
 
-  // Dekorativ elementlar (Theme based)
-  coverSlide.addShape(pptx.ShapeType.ellipse, { x: 7.0, y: 1.0, w: 5, h: 5, line: { color: theme.accent, width: 2 }, opacity: 20 });
-  coverSlide.addShape(pptx.ShapeType.ellipse, { x: 7.5, y: 1.5, w: 4, h: 4, line: { color: theme.secondary, width: 1.5 }, opacity: 40 });
-  coverSlide.addShape(pptx.ShapeType.ellipse, { x: 8.5, y: 2.5, w: 2, h: 2, fill: { color: theme.accent }, opacity: 50 });
+  // AI orqali rasm yuklash (qisqa vaqt ichida generatsiya bo'ladi)
+  const coverImg = await fetchImageBase64(topic + " presentation cinematic background illustration");
 
-  // Footer bar
-  coverSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.0, w: '100%', h: 1.5, fill: { color: theme.bg, transparency: 20 } });
-  coverSlide.addText(`Tayyorladi: ${fullName}`, {
-    x: 0.5, y: 7.3, w: '90%', fontSize: 22, color: theme.text, bold: true
-  });
+  if (themeKey === 'cyberpunk') {
+    // Cyberpunk Cover
+    coverSlide.addShape(pptx.ShapeType.rect, { x: -0.5, y: 0.5, w: '60%', h: 1.5, fill: { color: theme.secondary }, opacity: 80, rotate: 5 });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5, y: 1.5, w: 4, h: 3.5, sizing: { type: 'cover' } });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '55%', y: 0.3, w: 0.2, h: 2, fill: { color: theme.accent }, rotate: 5 });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '58%', y: 0.2, w: 0.05, h: 2.2, fill: { color: theme.accent }, rotate: 5 });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 0.7, w: '90%', h: 1, fontSize: 48, bold: true, color: '000000', fontFace: 'Courier New' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 2.6, w: '80%', fontSize: 20, color: theme.text, glow: { size: 5, color: theme.accent }, fontFace: 'Courier New' });
+    coverSlide.addShape(pptx.ShapeType.triangle, { x: 7, y: 4, w: 2, h: 2, fill: { color: theme.accent } });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 6.3, w: '100%', h: 0.8, fill: { color: theme.secondary }, opacity: 30 });
+    coverSlide.addText(`SYS.ADMIN // ${fullName.toUpperCase()} //`, { x: 0.5, y: 6.45, w: '90%', fontSize: 22, color: theme.secondary, bold: true, fontFace: 'Courier New' });
+  } else if (themeKey === 'gold') {
+    // Elegant Gold tayyorlash
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '5%', y: '5%', w: '90%', h: '90%', line: { color: theme.secondary, width: 3 } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 2.5, y: 1.5, w: 5, h: 2.5, sizing: { type: 'cover' } });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '6.5%', y: '8%', w: '87%', h: '84%', line: { color: theme.accent, width: 1 } }); 
+    coverSlide.addShape(pptx.ShapeType.diamond, { x: '48.5%', y: '10%', w: 0.3, h: 0.3, fill: { color: theme.secondary } });
+    coverSlide.addShape(pptx.ShapeType.diamond, { x: '48.5%', y: '86.5%', w: 0.3, h: 0.3, fill: { color: theme.secondary } });
+    coverSlide.addText(topic.toUpperCase(), { x: '10%', y: 4.2, w: '80%', h: 1, fontSize: 38, bold: true, color: theme.secondary, align: 'center', fontFace: 'Georgia', charSpacing: 3 });
+    coverSlide.addText(coverSubtitle, { x: '10%', y: 5.2, w: '80%', fontSize: 18, color: theme.text, align: 'center', italic: true, fontFace: 'Georgia' });
+    coverSlide.addText(fullName, { x: '10%', y: 6.5, w: '80%', fontSize: 16, color: theme.accent, align: 'center', charSpacing: 2 });
+  } else if (themeKey === 'ocean') {
+    // Fluid Ocean tayyorlash
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: -2, y: 3, w: 12, h: 8, fill: { color: theme.secondary }, opacity: 15 });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 1, y: 1, w: 4, h: 3, sizing: { type: 'cover' } });
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: 3, y: 4, w: 10, h: 7, fill: { color: theme.accent }, opacity: 20 });
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: 8, y: 1, w: 5, h: 5, fill: { color: 'FFFFFF' }, opacity: 10 });
+    coverSlide.addText(topic, { x: 0.5, y: 2.0, w: '90%', h: 2, fontSize: 46, bold: true, color: theme.text, align: 'right', fontFace: 'Trebuchet MS' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 4.5, w: '90%', fontSize: 22, color: theme.subtext, align: 'right', fontFace: 'Trebuchet MS' });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '50%', y: 6.4, w: '45%', h: 0.05, fill: { color: theme.secondary }, opacity: 50 });
+    coverSlide.addText(fullName, { x: 0.5, y: 6.5, w: '90%', fontSize: 18, color: theme.secondary, align: 'right', fontFace: 'Trebuchet MS' });
+  } else if (themeKey === 'emerald') {
+    // Emerald layout (Split Corporate)
+    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4, y: 0, w: 6, h: 7.5, fill: { color: theme.accent }, opacity: 25, flipV: false });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.5, y: 1.5, w: 4, h: 4.5, sizing: { type: 'cover' } });
+    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4.5, y: 0, w: 5.5, h: 7.5, fill: { color: theme.secondary }, opacity: 15 });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 2.0, w: '60%', h: 2.5, fontSize: 42, bold: true, color: theme.text, fontFace: 'Arial Black' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 4.5, w: '55%', fontSize: 18, color: theme.secondary, fontFace: 'Arial' });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 6.3, w: 3.5, h: 0.7, fill: { color: theme.secondary }, rectRadius: 0.1 });
+    coverSlide.addText(fullName, { x: 0.5, y: 6.3, w: 3.5, h: 0.7, fontSize: 18, color: "000000", align: "center", bold: true });
+  } else if (themeKey === 'purple') {
+    // Purple layout (Abstract)
+    coverSlide.addShape(pptx.ShapeType.triangle, { x: 5, y: -2, w: 8, h: 10, fill: { color: theme.secondary }, opacity: 40, rotate: 45 });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 6, y: 2, w: 3.5, h: 3.5, sizing: { type: 'cover' } });
+    coverSlide.addShape(pptx.ShapeType.triangle, { x: 6, y: -1, w: 6, h: 8, fill: { color: theme.accent }, opacity: 50, rotate: 60 });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 9.5, y: 0, w: 0.5, h: '100%', fill: { color: theme.text }, opacity: 10 });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 3.0, w: '80%', h: 2, fontSize: 46, bold: true, color: theme.text, align: 'left', shadow: { type: 'outer', color: theme.secondary, blur: 5, offset: 3, angle: 45 } });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 5.0, w: '80%', fontSize: 20, color: theme.subtext, align: 'left', italic: true });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 6.3, w: 2, h: 0.05, fill: { color: theme.accent } });
+    coverSlide.addText(`Muallif: ${fullName}`, { x: 0.5, y: 6.5, w: '80%', fontSize: 16, color: theme.accent, align: 'left' });
+  } else {
+    // Default (Dark Blue Premium)
+    coverSlide.addShape(pptx.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 3.5, h: 0.6, fill: { color: theme.secondary }, rectRadius: 0.1 });
+    coverSlide.addText(fullName.toUpperCase(), { x: 0.5, y: 0.8, w: 3.5, h: 0.6, fontSize: 16, bold: true, color: '000000', align: 'center' });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.5, y: 1.5, w: 4, h: 3, sizing: { type: 'cover' } });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 2.2, w: '85%', h: 2.0, fontSize: 42, bold: true, color: theme.text, align: 'left', fontFace: 'Arial Black', valign: 'top' });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 4.3, w: 1.5, h: 0.08, fill: { color: theme.accent } });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 4.6, w: '50%', fontSize: 18, color: theme.secondary, italic: true });
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: 6.5, y: -1.0, w: 6, h: 6, line: { color: theme.accent, width: 3 }, opacity: 20 });
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: 7.5, y: 1.5, w: 4, h: 4, line: { color: theme.secondary, width: 2 }, opacity: 40 });
+    coverSlide.addShape(pptx.ShapeType.ellipse, { x: 8.5, y: 4.5, w: 3, h: 3, fill: { color: theme.accent }, opacity: 15 });
+  }
 
   // 2. MA'LUMOTLI SLAYDLAR
-  slidesData.forEach((slideBlock) => {
+  slidesData.forEach((slideBlock, index) => {
     const slide = pptx.addSlide();
     slide.background = { color: theme.bg };
 
@@ -162,31 +217,53 @@ async function createPPT(text, filePath, topic, userObj) {
       subtitle = "";
     }
 
-    slide.addText(title || "Mavzu", {
-      x: 0.5, y: 0.2, w: '90%', h: 0.8,
-      fontSize: 28, bold: true, color: theme.text
-    });
-
-    if (subtitle) {
-      slide.addText(subtitle, {
-        x: 0.5, y: 1.0, w: '80%', fontSize: 16, color: theme.secondary, italic: true
-      });
-    }
-
-    slide.addShape(pptx.ShapeType.rect, {
-      x: 0.5, y: 1.4, w: '90%', h: 0.03, fill: { color: theme.accent }
-    });
-
     const points = content?.split('-').filter(p => p.trim());
     let formattedContent = points?.length > 0 ? points.map(p => p.trim()).join('\n') : (content || "Ma'lumot mavjud emas");
 
-    slide.addText(formattedContent, {
-      x: 0.5, y: 1.8, w: '90%', h: 5.5,
-      fontSize: 16, color: theme.subtext, bullet: { type: 'bullet' }, valign: 'top', lineSpacing: 24
-    });
-
-    slide.addShape(pptx.ShapeType.ellipse, { x: 11, y: -1, w: 3, h: 3, line: { color: theme.accent, width: 1 }, opacity: 15 });
-    slide.addShape(pptx.ShapeType.rect, { x: 0, y: 8.8, w: '100%', h: 0.2, fill: { color: theme.accent } });
+    if (themeKey === 'cyberpunk') {
+      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0.3, w: '65%', h: 1.0, fill: { color: theme.accent }, opacity: 70, rotate: -2 });
+      slide.addShape(pptx.ShapeType.rect, { x: '63%', y: 0.2, w: 0.1, h: 1.2, fill: { color: theme.secondary }, rotate: -2 });
+      slide.addText(title || "Mavzu", { x: 0.5, y: 0.25, w: '80%', h: 1, fontSize: 32, bold: true, color: '000000', fontFace: 'Courier New' });
+      slide.addText(formattedContent, { x: 0.5, y: 1.8, w: '85%', h: 5.5, fontSize: 18, color: theme.text, fontFace: 'Courier New', bullet: { type: 'bullet', characterCode: '25B6' }, lineSpacing: 28 });
+      slide.addShape(pptx.ShapeType.rect, { x: 9.5, y: 1.8, w: 0.1, h: 4.5, fill: { color: theme.secondary }, opacity: 50 });
+      slide.addText(`PRJ: ${topic.substring(0, 15).toUpperCase()} //`, { x: 0.5, y: 7.0, w: '90%', fontSize: 12, color: theme.accent, fontFace: 'Courier New', opacity: 70 });
+    } else if (themeKey === 'gold') {
+      slide.addShape(pptx.ShapeType.rect, { x: '4%', y: '4%', w: '92%', h: '92%', line: { color: theme.secondary, width: 1.5 } });
+      slide.addShape(pptx.ShapeType.diamond, { x: '49%', y: '4%', w: 0.2, h: 0.2, fill: { color: theme.secondary } });
+      slide.addText(title || "Mavzu", { x: 0, y: 0.6, w: '100%', h: 0.8, fontSize: 32, bold: true, color: theme.secondary, align: 'center', fontFace: 'Georgia' });
+      slide.addShape(pptx.ShapeType.rect, { x: '40%', y: 1.5, w: '20%', h: 0.02, fill: { color: theme.accent } });
+      slide.addText(formattedContent, { x: 1.0, y: 2.0, w: '80%', h: 4.5, fontSize: 18, color: theme.text, fontFace: 'Georgia', align: 'left', lineSpacing: 30, bullet: { type: 'bullet' } });
+    } else if (themeKey === 'ocean') {
+      slide.addShape(pptx.ShapeType.ellipse, { x: -2, y: -2, w: 5, h: 5, fill: { color: theme.accent }, opacity: 15 });
+      slide.addShape(pptx.ShapeType.ellipse, { x: 8, y: 5, w: 6, h: 6, fill: { color: theme.secondary }, opacity: 10 });
+      slide.addText(title || "Mavzu", { x: 0.8, y: 0.5, w: '70%', h: 1.0, fontSize: 34, bold: true, color: theme.secondary, fontFace: 'Trebuchet MS' });
+      slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.5, w: '15%', h: 0.05, fill: { color: theme.accent } });
+      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '80%', h: 4.8, fontSize: 18, color: theme.text, fontFace: 'Trebuchet MS', lineSpacing: 28, bullet: { type: 'bullet' } });
+      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.3, w: '100%', h: 0.2, fill: { color: theme.secondary }, opacity: 40 });
+    } else if (themeKey === 'emerald') {
+      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 1.2, h: '100%', fill: { color: theme.accent }, opacity: 80 });
+      slide.addText(String(index + 1).padStart(2, '0'), { x: 0, y: 0.5, w: 1.2, h: 1, fontSize: 24, bold: true, color: '000000', align: 'center', fontFace: 'Arial Black' });
+      slide.addText(title || "Mavzu", { x: 1.8, y: 0.5, w: '80%', h: 1, fontSize: 32, bold: true, color: theme.secondary, fontFace: 'Arial' });
+      slide.addText(formattedContent, { x: 1.8, y: 1.8, w: '75%', h: 5.2, fontSize: 18, color: theme.text, lineSpacing: 26, bullet: { type: 'number' } });
+    } else if (themeKey === 'purple') {
+      slide.addShape(pptx.ShapeType.rtTriangle, { x: 8, y: 0, w: 2, h: 3, fill: { color: theme.secondary }, opacity: 20, flipH: true });
+      slide.addText(title || "Mavzu", { x: 0.8, y: 0.6, w: '85%', h: 1, fontSize: 36, bold: true, color: theme.text, align: 'left' });
+      slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.6, w: 2, h: 0.08, fill: { color: theme.accent } });
+      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 5, fontSize: 18, color: theme.subtext, align: 'left', lineSpacing: 28, bullet: { type: 'bullet' } });
+    } else {
+      // Default (Dark Blue Premium)
+      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.3, h: '100%', fill: { color: theme.accent } });
+      slide.addShape(pptx.ShapeType.rect, { x: 0.3, y: 0, w: 0.1, h: '100%', fill: { color: theme.secondary }, opacity: 50 });
+      slide.addText(title || "Mavzu", { x: 0.8, y: 0.4, w: '85%', h: 0.8, fontSize: 30, bold: true, color: theme.secondary, fontFace: 'Arial Black' });
+      if (subtitle) {
+        slide.addText(subtitle, { x: 0.8, y: 1.2, w: '80%', fontSize: 16, color: theme.accent, italic: true });
+      }
+      slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.7, w: 3, h: 0.05, fill: { color: theme.secondary } });
+      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 4.8, fontSize: 18, color: theme.text, bullet: { type: 'bullet', characterCode: '2192' }, valign: 'top', lineSpacing: 28 });
+      slide.addShape(pptx.ShapeType.ellipse, { x: 9.5, y: 6.5, w: 2, h: 2, fill: { color: theme.accent }, opacity: 10 });
+      slide.addShape(pptx.ShapeType.triangle, { x: 10.5, y: -0.5, w: 2, h: 2, fill: { color: theme.secondary }, opacity: 15, rotate: 180 });
+      slide.addText(`@salomlarkk`, { x: 0.5, y: 7.1, w: '90%', fontSize: 11, color: theme.subtext, opacity: 50, align: 'right' });
+    }
   });
 
   await pptx.writeFile({ fileName: filePath });
@@ -195,7 +272,6 @@ async function createPPT(text, filePath, topic, userObj) {
 
 // Foydalanuvchi holatlari
 const userStates = {};
-const ADMIN_ID = 7561580911;
 
 // 📊 Admin Buyruqlari: Statistika
 bot.onText(/\/stat/, (msg) => {
@@ -255,7 +331,10 @@ bot.onText(/\/theme/, (msg) => {
       inline_keyboard: [
         [{ text: "🌑 To'q Ko'k (Premium)", callback_data: "theme_dark_blue" }],
         [{ text: "🌿 Zumrad Yashil", callback_data: "theme_emerald" }],
-        [{ text: "🔮 Binafsha (Premium)", callback_data: "theme_purple" }]
+        [{ text: "🔮 Binafsha (Premium)", callback_data: "theme_purple" }],
+        [{ text: "✨ Oltin (Elegance)", callback_data: "theme_gold" }],
+        [{ text: "⚡ Cyberpunk (Futuristic)", callback_data: "theme_cyberpunk" }],
+        [{ text: "🌊 Okean (Tinchlik)", callback_data: "theme_ocean" }]
       ]
     }
   });
@@ -271,10 +350,11 @@ bot.onText(/\/start/, async (msg) => {
     const userLink = msg.from.username ? `<a href="https://t.me/${msg.from.username}">@${msg.from.username}</a>` : `<a href="tg://user?id=${userId}">ID: ${userId}</a>`;
     bot.sendMessage(ADMIN_ID, `⚠️ <b>Potensial Foydalanuvchi (Obunasiz):</b> \n👤 Ism: <b>${msg.from.first_name} ${msg.from.last_name || ''}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}<code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
 
-    return bot.sendMessage(userId, `❌ Botdan foydalanish uchun ${CHANNEL_ID} kanaliga obuna bo'ling!`, {
+    return bot.sendMessage(userId, `❌ Botdan foydalanish uchun <b>${CHANNEL_ID}</b> kanaliga obuna bo'ling!`, {
+      parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: "📢 Kanalga o'tish", url: `https://t.me/${CHANNEL_ID.replace('@','')}` }],
+          [{ text: "📢 Kanalga o'tish", url: `https://t.me/${CHANNEL_ID.startsWith('@') ? CHANNEL_ID.replace('@','') : 'salomlarkk'}` }],
           [{ text: "✅ Tekshirish", callback_data: "check_sub" }]
         ]
       }
@@ -372,7 +452,7 @@ bot.on('message', async (msg) => {
     const userObj = typeof userData[userId] === 'object' ? userData[userId] : { name: userData[userId], theme: "dark_blue" };
     await createPPT(aiText, filePath, msg.text, userObj);
 
-    await bot.sendDocument(chatId, filePath, { caption: `✅ \"<b>${msg.text}</b>\" mavzusidagi mukammal slayd tayyor!\n\n🎨 Mavzu: <b>${userObj.theme || 'dark_blue'}</b>\n👤 Tayyorladi: <b>${userObj.name}</b>\n\n${CHANNEL_ID}`, parse_mode: 'HTML' });
+    await bot.sendDocument(chatId, filePath, { caption: `✅ \"<b>${msg.text}</b>\" mavzusidagi mukammal slayd tayyor!\n\n🎨 Mavzu: <b>${userObj.theme || 'dark_blue'}</b>\n👤 Tayyorladi: <b>${userObj.name}</b>\n\n📢 Kanal: ${CHANNEL_ID}`, parse_mode: 'HTML' });
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
