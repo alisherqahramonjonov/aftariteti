@@ -98,7 +98,7 @@ Rules:
 
   try {
     const res = await groq.chat.completions.create({
-      model: "llama-3.1-70b-versatile",
+      model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: "You are a professional presentation expert. Automatically detect the user's input language and respond in the same language. Use high-quality professional vocabulary. Your content must be rich, unique, and well-formatted." },
         { role: "user", content: prompt }
@@ -348,7 +348,7 @@ bot.onText(/\/start/, async (msg) => {
   if (!ok) {
     // 🔔 Adminga xabar yuborish (Obuna bo'lmagan foydalanuvchi)
     const userLink = msg.from.username ? `<a href="https://t.me/${msg.from.username}">@${msg.from.username}</a>` : `<a href="tg://user?id=${userId}">ID: ${userId}</a>`;
-    bot.sendMessage(ADMIN_ID, `⚠️ <b>Potensial Foydalanuvchi (Obunasiz):</b> \n👤 Ism: <b>${msg.from.first_name} ${msg.from.last_name || ''}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}<code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
+    bot.sendMessage(ADMIN_ID, `⚠️ <b>Potensial Foydalanuvchi (Obunasiz):</b> \n👤 Ism: <b>${msg.from.first_name} ${msg.from.last_name || ''}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}</code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
 
     return bot.sendMessage(userId, `❌ Botdan foydalanish uchun <b>${CHANNEL_ID}</b> kanaliga obuna bo'ling!`, {
       parse_mode: 'HTML',
@@ -429,7 +429,7 @@ bot.on('message', async (msg) => {
 
     // 🔔 Adminga xabar yuborish
     const userLink = msg.from.username ? `<a href="https://t.me/${msg.from.username}">@${msg.from.username}</a>` : `<a href="tg://user?id=${userId}">ID: ${userId}</a>`;
-    bot.sendMessage(ADMIN_ID, `✅ <b>Ism Saqlandi:</b> \n👤 Ism: <b>${fullName}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}<code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
+    bot.sendMessage(ADMIN_ID, `✅ <b>Ism Saqlandi:</b> \n👤 Ism: <b>${fullName}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}</code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
 
     return bot.sendMessage(chatId, `✅ Ism saqlandi: <b>${fullName}</b>\n\nEndi slayd mavzusini yuboring:`, { parse_mode: 'HTML' });
   }
