@@ -156,6 +156,7 @@ async function createPPT(text, filePath, topic, userObj) {
   // 1. MUQOVA SLAYDI (Cover)
   const coverSlide = pptx.addSlide();
   coverSlide.background = { color: theme.bg };
+  const coverSubtitle = slidesData[0]?.split('|')[1]?.trim() || "Mavzu yuzasidan batafsil ma'lumot";
   const coverImg = userObj.coverImg;
 
   if (themeKey === 'cyberpunk') {
