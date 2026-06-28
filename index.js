@@ -165,26 +165,26 @@ async function createPPT(text, filePath, topic, userObj) {
     coverSlide.addShape(pptx.ShapeType.rect, { x: '55%', y: 0.3, w: 0.2, h: 2, fill: { color: theme.accent }, rotate: 5 });
     coverSlide.addShape(pptx.ShapeType.rect, { x: '58%', y: 0.2, w: 0.05, h: 2.2, fill: { color: theme.accent }, rotate: 5 });
     coverSlide.addShape(pptx.ShapeType.triangle, { x: 7, y: 4, w: 2, h: 2, fill: { color: theme.accent } });
-    coverSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 6.3, w: '100%', h: 0.8, fill: { color: theme.secondary }, opacity: 30 });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0, y: 5.1, w: '100%', h: 0.5, fill: { color: theme.secondary }, opacity: 30 });
 
-    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.2, y: 1.2, w: 4.2, h: 3.8, sizing: { type: 'cover' } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.2, y: 1.0, w: 4.2, h: 3.5, sizing: { type: 'cover' } });
     
-    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 0.7, w: '50%', h: 1, fontSize: 40, bold: true, color: '000000', fontFace: 'Courier New' });
-    coverSlide.addText(coverSubtitle, { x: 0.5, y: 2.6, w: '50%', fontSize: 20, color: theme.text, glow: { size: 5, color: theme.accent }, fontFace: 'Courier New' });
-    coverSlide.addText(`SYS.ADMIN // ${fullName.toUpperCase()} //`, { x: 0.5, y: 6.45, w: '90%', fontSize: 22, color: theme.secondary, bold: true, fontFace: 'Courier New' });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 0.7, w: '45%', h: 1, fontSize: 36, bold: true, color: '000000', fontFace: 'Courier New' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 2.6, w: '45%', fontSize: 20, color: theme.text, glow: { size: 5, color: theme.accent }, fontFace: 'Courier New' });
+    coverSlide.addText(`SYS.ADMIN // ${fullName.toUpperCase()} //`, { x: 0.5, y: 5.2, w: '90%', fontSize: 18, color: theme.secondary, bold: true, fontFace: 'Courier New' });
 
   } else if (themeKey === 'gold') {
     // Elegant Gold Decorative
     coverSlide.addShape(pptx.ShapeType.rect, { x: '5%', y: '5%', w: '90%', h: '90%', line: { color: theme.secondary, width: 3 } });
     coverSlide.addShape(pptx.ShapeType.rect, { x: '6.5%', y: '8%', w: '87%', h: '84%', line: { color: theme.accent, width: 1 } }); 
     coverSlide.addShape(pptx.ShapeType.diamond, { x: '48.5%', y: '10%', w: 0.3, h: 0.3, fill: { color: theme.secondary } });
-    coverSlide.addShape(pptx.ShapeType.diamond, { x: '48.5%', y: '86.5%', w: 0.3, h: 0.3, fill: { color: theme.secondary } });
+    coverSlide.addShape(pptx.ShapeType.diamond, { x: '48.5%', y: '85%', w: 0.3, h: 0.3, fill: { color: theme.secondary } });
 
-    if (coverImg) coverSlide.addImage({ data: coverImg, x: 2.5, y: 1.2, w: 5, h: 2.8, sizing: { type: 'cover' } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 2.5, y: 1.2, w: 5, h: 2.5, sizing: { type: 'cover' } });
 
-    coverSlide.addText(topic.toUpperCase(), { x: '10%', y: 4.2, w: '80%', h: 1, fontSize: 36, bold: true, color: theme.secondary, align: 'center', fontFace: 'Georgia', charSpacing: 3 });
-    coverSlide.addText(coverSubtitle, { x: '10%', y: 5.2, w: '80%', fontSize: 18, color: theme.text, align: 'center', italic: true, fontFace: 'Georgia' });
-    coverSlide.addText(fullName, { x: '10%', y: 6.5, w: '80%', fontSize: 16, color: theme.accent, align: 'center', charSpacing: 2 });
+    coverSlide.addText(topic.toUpperCase(), { x: '10%', y: 3.8, w: '80%', h: 0.8, fontSize: 36, bold: true, color: theme.secondary, align: 'center', fontFace: 'Georgia', charSpacing: 3 });
+    coverSlide.addText(coverSubtitle, { x: '10%', y: 4.6, w: '80%', fontSize: 18, color: theme.text, align: 'center', italic: true, fontFace: 'Georgia' });
+    coverSlide.addText(fullName, { x: '10%', y: 5.1, w: '80%', fontSize: 16, color: theme.accent, align: 'center', charSpacing: 2 });
 
   } else if (themeKey === 'ocean') {
     // Fluid Ocean Decorative
@@ -192,52 +192,52 @@ async function createPPT(text, filePath, topic, userObj) {
     coverSlide.addShape(pptx.ShapeType.ellipse, { x: 3, y: 4, w: 10, h: 7, fill: { color: theme.accent }, opacity: 20 });
     coverSlide.addShape(pptx.ShapeType.ellipse, { x: 8, y: 1, w: 5, h: 5, fill: { color: 'FFFFFF' }, opacity: 10 });
 
-    if (coverImg) coverSlide.addImage({ data: coverImg, x: 0.5, y: 1, w: 4, h: 4.5, sizing: { type: 'cover' } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 0.5, y: 1, w: 4, h: 3.6, sizing: { type: 'cover' } });
 
-    coverSlide.addText(topic, { x: 4.5, y: 2.0, w: '50%', h: 2, fontSize: 42, bold: true, color: theme.text, align: 'right', fontFace: 'Trebuchet MS' });
-    coverSlide.addText(coverSubtitle, { x: 4.5, y: 4.5, w: '50%', fontSize: 20, color: theme.subtext, align: 'right', fontFace: 'Trebuchet MS' });
-    coverSlide.addShape(pptx.ShapeType.rect, { x: '50%', y: 6.4, w: '45%', h: 0.05, fill: { color: theme.secondary }, opacity: 50 });
-    coverSlide.addText(fullName, { x: 0.5, y: 6.5, w: '90%', fontSize: 18, color: theme.secondary, align: 'right', fontFace: 'Trebuchet MS' });
+    coverSlide.addText(topic, { x: 4.8, y: 1.5, w: '48%', h: 1.5, fontSize: 42, bold: true, color: theme.text, align: 'right', fontFace: 'Trebuchet MS' });
+    coverSlide.addText(coverSubtitle, { x: 4.8, y: 3.0, w: '48%', fontSize: 20, color: theme.subtext, align: 'right', fontFace: 'Trebuchet MS' });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: '50%', y: 5.1, w: '45%', h: 0.05, fill: { color: theme.secondary }, opacity: 50 });
+    coverSlide.addText(fullName, { x: 0.5, y: 5.2, w: '90%', fontSize: 18, color: theme.secondary, align: 'right', fontFace: 'Trebuchet MS' });
 
   } else if (themeKey === 'emerald') {
     // Emerald layout Decorative
-    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4, y: 0, w: 6, h: 7.5, fill: { color: theme.accent }, opacity: 25, flipV: false });
-    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4.5, y: 0, w: 5.5, h: 7.5, fill: { color: theme.secondary }, opacity: 15 });
-    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 6.3, w: 3.5, h: 0.7, fill: { color: theme.secondary }, rectRadius: 0.1 });
+    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4, y: 0, w: 6, h: 5.625, fill: { color: theme.accent }, opacity: 25, flipV: false });
+    coverSlide.addShape(pptx.ShapeType.rtTriangle, { x: 4.5, y: 0, w: 5.5, h: 5.625, fill: { color: theme.secondary }, opacity: 15 });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 5.0, w: 3.5, h: 0.4, fill: { color: theme.secondary }, rectRadius: 0.1 });
 
-    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.5, y: 1.5, w: 4, h: 4.5, sizing: { type: 'cover' } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.5, y: 1.0, w: 3.5, h: 3.5, sizing: { type: 'cover' } });
 
-    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 2.0, w: '50%', h: 2.5, fontSize: 38, bold: true, color: theme.text, fontFace: 'Arial Black' });
-    coverSlide.addText(coverSubtitle, { x: 0.5, y: 4.5, w: '50%', fontSize: 18, color: theme.secondary, fontFace: 'Arial' });
-    coverSlide.addText(fullName, { x: 0.5, y: 6.3, w: 3.5, h: 0.7, fontSize: 18, color: "000000", align: "center", bold: true });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 1.5, w: '45%', h: 2.0, fontSize: 38, bold: true, color: theme.text, fontFace: 'Arial Black' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 3.5, w: '45%', fontSize: 18, color: theme.secondary, fontFace: 'Arial' });
+    coverSlide.addText(fullName, { x: 0.5, y: 5.0, w: 3.5, h: 0.4, fontSize: 16, color: "000000", align: "center", bold: true });
 
   } else if (themeKey === 'purple') {
     // Purple layout Decorative
     coverSlide.addShape(pptx.ShapeType.triangle, { x: 5, y: -2, w: 8, h: 10, fill: { color: theme.secondary }, opacity: 40, rotate: 45 });
     coverSlide.addShape(pptx.ShapeType.triangle, { x: 6, y: -1, w: 6, h: 8, fill: { color: theme.accent }, opacity: 50, rotate: 60 });
     coverSlide.addShape(pptx.ShapeType.rect, { x: 9.5, y: 0, w: 0.5, h: '100%', fill: { color: theme.text }, opacity: 10 });
-    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 6.3, w: 2, h: 0.05, fill: { color: theme.accent } });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 5.2, w: 2, h: 0.05, fill: { color: theme.accent } });
 
-    if (coverImg) coverSlide.addImage({ data: coverImg, x: 6.2, y: 1.8, w: 3.2, h: 4, sizing: { type: 'cover' } });
+    if (coverImg) coverSlide.addImage({ data: coverImg, x: 6.2, y: 1.0, w: 3.2, h: 3.6, sizing: { type: 'cover' } });
 
-    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 3.0, w: '55%', h: 2, fontSize: 44, bold: true, color: theme.text, align: 'left', shadow: { type: 'outer', color: theme.secondary, blur: 5, offset: 3, angle: 45 } });
-    coverSlide.addText(coverSubtitle, { x: 0.5, y: 5.0, w: '55%', fontSize: 20, color: theme.subtext, align: 'left', italic: true });
-    coverSlide.addText(`Muallif: ${fullName}`, { x: 0.5, y: 6.5, w: '80%', fontSize: 16, color: theme.accent, align: 'left' });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 2.0, w: '55%', h: 1.5, fontSize: 44, bold: true, color: theme.text, align: 'left', shadow: { type: 'outer', color: theme.secondary, blur: 5, offset: 3, angle: 45 } });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 3.5, w: '55%', fontSize: 20, color: theme.subtext, align: 'left', italic: true });
+    coverSlide.addText(`Muallif: ${fullName}`, { x: 0.5, y: 5.3, w: '80%', fontSize: 16, color: theme.accent, align: 'left' });
 
   } else {
     // Default (Dark Blue Premium) Decorative FIRST (Z-Order)
     coverSlide.addShape(pptx.ShapeType.ellipse, { x: 6.5, y: -1.0, w: 6, h: 6, line: { color: theme.accent, width: 3 }, opacity: 20 });
     coverSlide.addShape(pptx.ShapeType.ellipse, { x: 7.5, y: 1.5, w: 4, h: 4, line: { color: theme.secondary, width: 2 }, opacity: 40 });
     coverSlide.addShape(pptx.ShapeType.ellipse, { x: 8.5, y: 4.5, w: 3, h: 3, fill: { color: theme.accent }, opacity: 15 });
-    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 4.3, w: 1.5, h: 0.08, fill: { color: theme.accent } });
+    coverSlide.addShape(pptx.ShapeType.rect, { x: 0.5, y: 4.8, w: 1.5, h: 0.08, fill: { color: theme.accent } });
 
-    coverSlide.addShape(pptx.ShapeType.roundRect, { x: 0.5, y: 0.8, w: 3.5, h: 0.6, fill: { color: theme.secondary }, rectRadius: 0.1 });
-    coverSlide.addText(fullName.toUpperCase(), { x: 0.5, y: 0.8, w: 3.5, h: 0.6, fontSize: 16, bold: true, color: '000000', align: 'center' });
+    coverSlide.addShape(pptx.ShapeType.roundRect, { x: 0.5, y: 0.5, w: 3.5, h: 0.5, fill: { color: theme.secondary }, rectRadius: 0.1 });
+    coverSlide.addText(fullName.toUpperCase(), { x: 0.5, y: 0.5, w: 3.5, h: 0.5, fontSize: 16, bold: true, color: '000000', align: 'center' });
 
     if (coverImg) coverSlide.addImage({ data: coverImg, x: 5.8, y: 1.2, w: 3.8, h: 3.5, sizing: { type: 'cover' } });
 
-    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 2.2, w: '50%', h: 2.0, fontSize: 40, bold: true, color: theme.text, align: 'left', fontFace: 'Arial Black', valign: 'top' });
-    coverSlide.addText(coverSubtitle, { x: 0.5, y: 4.6, w: '50%', fontSize: 18, color: theme.secondary, italic: true });
+    coverSlide.addText(topic.toUpperCase(), { x: 0.5, y: 1.5, w: '50%', h: 1.5, fontSize: 40, bold: true, color: theme.text, align: 'left', fontFace: 'Arial Black', valign: 'top' });
+    coverSlide.addText(coverSubtitle, { x: 0.5, y: 3.5, w: '50%', fontSize: 18, color: theme.secondary, italic: true });
   }
 
   // 2. MA'LUMOTLI SLAYDLAR
@@ -258,32 +258,32 @@ async function createPPT(text, filePath, topic, userObj) {
       slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0.3, w: '65%', h: 1.0, fill: { color: theme.accent }, opacity: 70, rotate: -2 });
       slide.addShape(pptx.ShapeType.rect, { x: '63%', y: 0.2, w: 0.1, h: 1.2, fill: { color: theme.secondary }, rotate: -2 });
       slide.addText(title || "Mavzu", { x: 0.5, y: 0.25, w: '80%', h: 1, fontSize: 32, bold: true, color: '000000', fontFace: 'Courier New' });
-      slide.addText(formattedContent, { x: 0.5, y: 1.8, w: '85%', h: 5.5, fontSize: 18, color: theme.text, fontFace: 'Courier New', bullet: { type: 'bullet', characterCode: '25B6' }, lineSpacing: 28 });
-      slide.addShape(pptx.ShapeType.rect, { x: 9.5, y: 1.8, w: 0.1, h: 4.5, fill: { color: theme.secondary }, opacity: 50 });
-      slide.addText(`PRJ: ${topic.substring(0, 15).toUpperCase()} //`, { x: 0.5, y: 7.0, w: '90%', fontSize: 12, color: theme.accent, fontFace: 'Courier New', opacity: 70 });
+      slide.addText(formattedContent, { x: 0.5, y: 1.8, w: '85%', h: 3.2, fontSize: 18, color: theme.text, fontFace: 'Courier New', bullet: { type: 'bullet', characterCode: '25B6' }, lineSpacing: 28 });
+      slide.addShape(pptx.ShapeType.rect, { x: 9.5, y: 1.8, w: 0.1, h: 3.2, fill: { color: theme.secondary }, opacity: 50 });
+      slide.addText(`PRJ: ${topic.substring(0, 15).toUpperCase()} //`, { x: 0.5, y: 5.2, w: '90%', fontSize: 12, color: theme.accent, fontFace: 'Courier New', opacity: 70 });
     } else if (themeKey === 'gold') {
       slide.addShape(pptx.ShapeType.rect, { x: '4%', y: '4%', w: '92%', h: '92%', line: { color: theme.secondary, width: 1.5 } });
       slide.addShape(pptx.ShapeType.diamond, { x: '49%', y: '4%', w: 0.2, h: 0.2, fill: { color: theme.secondary } });
       slide.addText(title || "Mavzu", { x: 0, y: 0.6, w: '100%', h: 0.8, fontSize: 32, bold: true, color: theme.secondary, align: 'center', fontFace: 'Georgia' });
       slide.addShape(pptx.ShapeType.rect, { x: '40%', y: 1.5, w: '20%', h: 0.02, fill: { color: theme.accent } });
-      slide.addText(formattedContent, { x: 1.0, y: 2.0, w: '80%', h: 4.5, fontSize: 18, color: theme.text, fontFace: 'Georgia', align: 'left', lineSpacing: 30, bullet: { type: 'bullet' } });
+      slide.addText(formattedContent, { x: 1.0, y: 1.8, w: '80%', h: 3.5, fontSize: 18, color: theme.text, fontFace: 'Georgia', align: 'left', lineSpacing: 30, bullet: { type: 'bullet' } });
     } else if (themeKey === 'ocean') {
       slide.addShape(pptx.ShapeType.ellipse, { x: -2, y: -2, w: 5, h: 5, fill: { color: theme.accent }, opacity: 15 });
-      slide.addShape(pptx.ShapeType.ellipse, { x: 8, y: 5, w: 6, h: 6, fill: { color: theme.secondary }, opacity: 10 });
+      slide.addShape(pptx.ShapeType.ellipse, { x: 8, y: 4, w: 6, h: 6, fill: { color: theme.secondary }, opacity: 10 });
       slide.addText(title || "Mavzu", { x: 0.8, y: 0.5, w: '70%', h: 1.0, fontSize: 34, bold: true, color: theme.secondary, fontFace: 'Trebuchet MS' });
       slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.5, w: '15%', h: 0.05, fill: { color: theme.accent } });
-      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '80%', h: 4.8, fontSize: 18, color: theme.text, fontFace: 'Trebuchet MS', lineSpacing: 28, bullet: { type: 'bullet' } });
-      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.3, w: '100%', h: 0.2, fill: { color: theme.secondary }, opacity: 40 });
+      slide.addText(formattedContent, { x: 0.8, y: 1.8, w: '80%', h: 3.5, fontSize: 18, color: theme.text, fontFace: 'Trebuchet MS', lineSpacing: 28, bullet: { type: 'bullet' } });
+      slide.addShape(pptx.ShapeType.rect, { x: 0, y: 5.4, w: '100%', h: 0.2, fill: { color: theme.secondary }, opacity: 40 });
     } else if (themeKey === 'emerald') {
       slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 1.2, h: '100%', fill: { color: theme.accent }, opacity: 80 });
       slide.addText(String(index + 1).padStart(2, '0'), { x: 0, y: 0.5, w: 1.2, h: 1, fontSize: 24, bold: true, color: '000000', align: 'center', fontFace: 'Arial Black' });
       slide.addText(title || "Mavzu", { x: 1.8, y: 0.5, w: '80%', h: 1, fontSize: 32, bold: true, color: theme.secondary, fontFace: 'Arial' });
-      slide.addText(formattedContent, { x: 1.8, y: 1.8, w: '75%', h: 5.2, fontSize: 18, color: theme.text, lineSpacing: 26, bullet: { type: 'number' } });
+      slide.addText(formattedContent, { x: 1.8, y: 1.6, w: '75%', h: 3.8, fontSize: 18, color: theme.text, lineSpacing: 26, bullet: { type: 'number' } });
     } else if (themeKey === 'purple') {
       slide.addShape(pptx.ShapeType.rtTriangle, { x: 8, y: 0, w: 2, h: 3, fill: { color: theme.secondary }, opacity: 20, flipH: true });
       slide.addText(title || "Mavzu", { x: 0.8, y: 0.6, w: '85%', h: 1, fontSize: 36, bold: true, color: theme.text, align: 'left' });
       slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.6, w: 2, h: 0.08, fill: { color: theme.accent } });
-      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 5, fontSize: 18, color: theme.subtext, align: 'left', lineSpacing: 28, bullet: { type: 'bullet' } });
+      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 3.5, fontSize: 18, color: theme.subtext, align: 'left', lineSpacing: 28, bullet: { type: 'bullet' } });
     } else {
       // Default (Dark Blue Premium)
       slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.3, h: '100%', fill: { color: theme.accent } });
@@ -293,10 +293,10 @@ async function createPPT(text, filePath, topic, userObj) {
         slide.addText(subtitle, { x: 0.8, y: 1.2, w: '80%', fontSize: 16, color: theme.accent, italic: true });
       }
       slide.addShape(pptx.ShapeType.rect, { x: 0.8, y: 1.7, w: 3, h: 0.05, fill: { color: theme.secondary } });
-      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 4.8, fontSize: 18, color: theme.text, bullet: { type: 'bullet', characterCode: '2192' }, valign: 'top', lineSpacing: 28 });
-      slide.addShape(pptx.ShapeType.ellipse, { x: 9.5, y: 6.5, w: 2, h: 2, fill: { color: theme.accent }, opacity: 10 });
+      slide.addText(formattedContent, { x: 0.8, y: 2.0, w: '85%', h: 3.3, fontSize: 18, color: theme.text, bullet: { type: 'bullet', characterCode: '2192' }, valign: 'top', lineSpacing: 28 });
+      slide.addShape(pptx.ShapeType.ellipse, { x: 9.5, y: 5.0, w: 2, h: 2, fill: { color: theme.accent }, opacity: 10 });
       slide.addShape(pptx.ShapeType.triangle, { x: 10.5, y: -0.5, w: 2, h: 2, fill: { color: theme.secondary }, opacity: 15, rotate: 180 });
-      slide.addText(`@salomlarkk`, { x: 0.5, y: 7.1, w: '90%', fontSize: 11, color: theme.subtext, opacity: 50, align: 'right' });
+      slide.addText(`@salomlarkk`, { x: 0.5, y: 5.4, w: '90%', fontSize: 11, color: theme.subtext, opacity: 50, align: 'right' });
     }
   });
 
