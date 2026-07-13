@@ -6,6 +6,7 @@ const fs = require('fs');
 const Groq = require('groq-sdk');
 const express = require('express');
 const axios = require('axios');
+const { text } = require('stream/consumers');
 const app = express();
 
 // 🖼️ Rasm yuklash funksiyasi
@@ -42,7 +43,7 @@ async function generateImagePrompt(topic) {
 // 🔐 ENV orqali yuklash
 const token = process.env.BOT_TOKEN;
 const groqApiKey = process.env.GROQ_API_KEY;
-const CHANNEL_ID = process.env.CHANNEL_ID || '@salomlarkk';
+const CHANNEL_ID = process.env.CHANNEL_ID || '@alisher_qahramonjonov';
 const ADMIN_ID = parseInt(process.env.ADMIN_ID) || 7561580911;
 
 if (!token || !groqApiKey) {
@@ -92,7 +93,8 @@ const THEMES = {
   purple: { bg: '1A0B2E', secondary: 'BF40BF', accent: '702963', text: 'FFFFFF', subtext: 'E6E6FA' },
   gold: { bg: '1A1A1A', secondary: 'D4AF37', accent: 'C5A028', text: 'FFFFFF', subtext: 'F5F5F5' },
   cyberpunk: { bg: '0D0D0D', secondary: 'FF00FF', accent: '00FFFF', text: 'FFFFFF', subtext: 'E0E0E0' },
-  ocean: { bg: '003366', secondary: '00CCFF', accent: '007BFF', text: 'FFFFFF', subtext: 'E0FFFF' }
+  ocean: { bg: '003366', secondary: '00CCFF', accent: '007BFF', text: 'FFFFFF', subtext: 'E0FFFF' },
+  oq: { bg: '#ffffff', secondary: '00CCFF', accent: '0078ff', text: '48f00', subtext: 'e0ffff' }
 };
 
 // 🤖 Groq orqali slaydlar yaratish (Ko'p tilli qo'llab-quvvatlash)
@@ -363,9 +365,9 @@ bot.onText(/\/theme/, (msg) => {
   bot.sendMessage(userId, "🎨 Slayd dizayni uchun mavzu tanlang:", {
     reply_markup: {
       inline_keyboard: [
-        [{ text: "🌑 To'q Ko'k (Premium)", callback_data: "theme_dark_blue" }],
+        [{ text: "🌑 To'q Ko'k (To'q Ko'k)", callback_data: "theme_dark_blue" }],
         [{ text: "🌿 Zumrad Yashil", callback_data: "theme_emerald" }],
-        [{ text: "🔮 Binafsha (Premium)", callback_data: "theme_purple" }],
+        [{ text: "🔮 Binafsha (Binafsha)", callback_data: "theme_purple" }],
         [{ text: "✨ Oltin (Elegance)", callback_data: "theme_gold" }],
         [{ text: "⚡ Cyberpunk (Futuristic)", callback_data: "theme_cyberpunk" }],
         [{ text: "🌊 Okean (Tinchlik)", callback_data: "theme_ocean" }]
@@ -388,7 +390,7 @@ bot.onText(/\/start/, async (msg) => {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
-          [{ text: "📢 Kanalga o'tish", url: `https://t.me/${CHANNEL_ID.startsWith('@') ? CHANNEL_ID.replace('@','') : 'salomlarkk'}` }],
+          [{ text: "📢 Kanalga o'tish", url: `https://t.me/${CHANNEL_ID.startsWith('@') ? CHANNEL_ID.replace('@','') : 'alisher_qahramonjonov'}` }],
           [{ text: "✅ Tekshirish", callback_data: "check_sub" }]
         ]
       }
@@ -477,7 +479,7 @@ bot.on('message', async (msg) => {
     return;
   }
 
-  const statusMsg = await bot.sendMessage(chatId, "⏳ Ma'lumotlar to'planmoqda va premium dizayn yaratilmoqda...");
+  const statusMsg = await bot.sendMessage(chatId, "⏳ Ma'lumotlar to'planmoqda va slayt yaratilmoqda 10 15 sonyada tayor boladi...");
 
   try {
     const imgPrompt = await generateImagePrompt(msg.text);
@@ -499,7 +501,7 @@ bot.on('message', async (msg) => {
 
   } catch (error) {
     console.error("Xatolik:", error);
-    bot.sendMessage(chatId, "❌ Kechirasiz, xatolik yuz berdi: " + error.message);
+    bot.sendMessage(chatId, "❌ Kechirasiz, xatolik yuz berdi: adminga murojat qiling iltimos: @Alisher_09_30  " + error.message);
   }
 });
 
