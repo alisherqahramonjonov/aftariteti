@@ -6,7 +6,6 @@ const fs = require('fs');
 const Groq = require('groq-sdk');
 const express = require('express');
 const axios = require('axios');
-const { text } = require('stream/consumers');
 const app = express();
 
 // 🖼️ Rasm yuklash funksiyasi
@@ -94,7 +93,7 @@ const THEMES = {
   gold: { bg: '1A1A1A', secondary: 'D4AF37', accent: 'C5A028', text: 'FFFFFF', subtext: 'F5F5F5' },
   cyberpunk: { bg: '0D0D0D', secondary: 'FF00FF', accent: '00FFFF', text: 'FFFFFF', subtext: 'E0E0E0' },
   ocean: { bg: '003366', secondary: '00CCFF', accent: '007BFF', text: 'FFFFFF', subtext: 'E0FFFF' },
-  oq: { bg: '#ffffff', secondary: '00CCFF', accent: '0078ff', text: '48f00', subtext: 'e0ffff' }
+  oq: { bg: 'FFFFFF', secondary: '00CCFF', accent: '0078FF', text: '000000', subtext: '333333' }
 };
 
 // 🤖 Groq orqali slaydlar yaratish (Ko'p tilli qo'llab-quvvatlash)
@@ -319,7 +318,7 @@ bot.onText(/\/stat/, (msg) => {
 // 📊 Admin Buyruqlari: Foydalanuvchilar Ro'yxati
 bot.onText(/\/users/, (msg) => {
   if (msg.from.id !== ADMIN_ID) return;
-  let list = "📋 <b>Foydalaruvchilar Ro'yxati:</b>\n\n";
+  let list = "📋 <b>Foydalanuvchilar Ro'yxati:</b>\n\n";
   const ids = Object.keys(userData);
   if (ids.length === 0) list += "<i>Hali foydalanuvchilar yo'q.</i>";
   ids.forEach((id, index) => {
@@ -386,7 +385,7 @@ bot.onText(/\/start/, async (msg) => {
     const userLink = msg.from.username ? `<a href="https://t.me/${msg.from.username}">@${msg.from.username}</a>` : `<a href="tg://user?id=${userId}">ID: ${userId}</a>`;
     bot.sendMessage(ADMIN_ID, `⚠️ <b>Potensial Foydalanuvchi (Obunasiz):</b> \n👤 Ism: <b>${msg.from.first_name} ${msg.from.last_name || ''}</b>\n🔗 Profil: ${userLink}\n🆔 ID: <code>${userId}</code>`, { parse_mode: 'HTML' }).catch(e => console.error("Admin notification error:", e.message));
 
-    return bot.sendMessage(userId, `❌ Botdan foydalanish uchun <b>${CHANNEL_ID}</b> kanaliga obuna bo'ling!`, {
+    return bot.sendMessage(userId, `❌ <b>Hurmatli foydalanuvchi!</b>\n\nBot xizmatlaridan to'liq foydalanish uchun rasmiy kanalimizga obuna bo'lishingiz so'raladi:`, {
       parse_mode: 'HTML',
       reply_markup: {
         inline_keyboard: [
@@ -479,7 +478,7 @@ bot.on('message', async (msg) => {
     return;
   }
 
-  const statusMsg = await bot.sendMessage(chatId, "⏳ Ma'lumotlar to'planmoqda va slayt yaratilmoqda 10 15 sonyada tayor boladi...");
+  const statusMsg = await bot.sendMessage(chatId, "⏳ Ma'lumotlar to'planmoqda va slayd yaratilmoqda. 10-15 soniyada tayyor bo'ladi...");
 
   try {
     const imgPrompt = await generateImagePrompt(msg.text);
@@ -501,7 +500,7 @@ bot.on('message', async (msg) => {
 
   } catch (error) {
     console.error("Xatolik:", error);
-    bot.sendMessage(chatId, "❌ Kechirasiz, xatolik yuz berdi: adminga murojat qiling iltimos: @Alisher_09_30  " + error.message);
+    bot.sendMessage(chatId, "❌ Kechirasiz, xatolik yuz berdi: adminga murojaat qiling iltimos: @Alisher_09_30  " + error.message);
   }
 });
 
